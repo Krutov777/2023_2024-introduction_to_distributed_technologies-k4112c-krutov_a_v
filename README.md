@@ -34,7 +34,7 @@ Date of finished: <none>
         minikube kubectl -- logs vault | grep "Root Token"
 
 #### Используем полученный токен и авторизуемся в vault:
-![Alt text](source/after_using_token.png)
+![Alt text](images/after_using_token.png)
 
 ### Cхема:
-![Alt text](source/schema.png)
+![Alt text](images/schema.png)
