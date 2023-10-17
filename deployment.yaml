@@ -1,0 +1,10 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: vault
+spec:
+  containers:
+    - name: vault
+      image: vault:1.13.3
+      ports:
+        - containerPort: 8200
