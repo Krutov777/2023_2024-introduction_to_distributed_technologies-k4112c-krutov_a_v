@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment                                            
+metadata:
+  name: deployment-react                         
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: react
+  template:
+    metadata:
+      labels:
+        app: react
+    spec:                                      
+      containers:
+        - image: ifilyaninitmo/itdt-contained-frontend:master
+          name: react                           
+          ports:
+          - name: react-port
+            containerPort: 3000
+          env:
+            - name: REACT_APP_USERNAME
+              value: 'krutov'
+            - name: REACT_APP_COMPANY_NAME
+              value: 'krutov.corp'
+        
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-service
+spec:
+  selector:
+    app: react
+  type: NodePort
+  ports:
+    - port: 2000
+      name: react-port-service
+      targetPort: react-port
+      protocol: TCP
