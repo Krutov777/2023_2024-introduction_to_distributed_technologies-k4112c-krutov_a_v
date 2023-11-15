@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  REACT_APP_USERNAME: "KAV"
+  REACT_APP_COMPANY_NAME: "ITMO"
+
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: itdt-contained-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: itdt-contained-frontend
+  template:
+    metadata:
+      labels:
+        app: itdt-contained-frontend
+    spec:
+      containers:
+        - name: itdt-contained-frontend
+          image: ifilyaninitmo/itdt-contained-frontend:master
+          env:
+            - name: REACT_APP_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: REACT_APP_USERNAME
+            - name: REACT_APP_COMPANY_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: REACT_APP_COMPANY_NAME
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+  selector:
+    app: itdt-contained-frontend
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+type: kubernetes.io/tls
+stringData:
+  tls.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIDETCCAfmgAwIBAgIUPpPE0Z4WYNnzVaaFjR9+a/Z4M1cwDQYJKoZIhvcNAQEL
+    BQAwGDEWMBQGA1UEAwwNa3J1dG92YXBwLmNvbTAeFw0yMzExMTUxNzE3MDRaFw0y
+    NDExMTQxNzE3MDRaMBgxFjAUBgNVBAMMDWtydXRvdmFwcC5jb20wggEiMA0GCSqG
+    SIb3DQEBAQUAA4IBDwAwggEKAoIBAQDrnHgociTrcR5r5oNzOmVWzBvVUx4TO492
+    zwufdiCnN1xDWMmGmqIkdtP+nSKJ2q0jCtnV63QBT6BsutfqAPz1jNpa7++NW4Vo
+    gB1oDzHnLFyTLKQMBUa4wTYvxD0Eyi7eBsdhFRvvuxVjjzlwpZcMLhL5aL2qhBYb
+    ceg/orr5F04h7MwHz811FN+QEjtBR6AQPkJxavnNlkL6Gg7zC1PMDanEyK7RqauP
+    gICEHt+VJTr5Yg66aEubF3zBxmb0jpg4vPpIfJUkfkHHrYHm0BZlnsRBkn27AK3H
+    UEV5qmCF/EQ7aOaiiMh55cM2TNWKapvyLKFvEW8w8mS3XKDr5WH/AgMBAAGjUzBR
+    MB0GA1UdDgQWBBQc55u3UCm0uTb1aio4GWuO4PYMGjAfBgNVHSMEGDAWgBQc55u3
+    UCm0uTb1aio4GWuO4PYMGjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUA
+    A4IBAQA8c+RmIfhQiY4odLAcZVfLbALPuhgmHu9srhgV5MawBC8/DOzoMs/VNOxU
+    oom1W3WI7tZs2KkRC3oLr3ED50iD1tFwv5tgSgVoYC9BItKXyfxlmtbkOMHY4f2S
+    m2kKiLhQWiEKczER6B2ml2tlOMxubgPbkV/O77TBGWoDXlZt0TP0fIamKXpkbvju
+    BRM5Ld2tBO0VjPPXklxn7cv164t0SYcregaP3N+JPFwBICog0YFTfOtAumRJ7qzV
+    UF6FNsez/9trv3wQwxCFIPuoAzhCYFKKmXbb1T+0BlrFRyr1Ajmwg0algvb4hAgO
+    Rl6+gTEyAOiKSyw3w9zwf0UBjm6Z
+    -----END CERTIFICATE-----
+  tls.key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDrnHgociTrcR5r
+    5oNzOmVWzBvVUx4TO492zwufdiCnN1xDWMmGmqIkdtP+nSKJ2q0jCtnV63QBT6Bs
+    utfqAPz1jNpa7++NW4VogB1oDzHnLFyTLKQMBUa4wTYvxD0Eyi7eBsdhFRvvuxVj
+    jzlwpZcMLhL5aL2qhBYbceg/orr5F04h7MwHz811FN+QEjtBR6AQPkJxavnNlkL6
+    Gg7zC1PMDanEyK7RqauPgICEHt+VJTr5Yg66aEubF3zBxmb0jpg4vPpIfJUkfkHH
+    rYHm0BZlnsRBkn27AK3HUEV5qmCF/EQ7aOaiiMh55cM2TNWKapvyLKFvEW8w8mS3
+    XKDr5WH/AgMBAAECggEAFHiVBL1HfEC+VMADsM8klJeJsuMUtwq9lXmPeCHn3A+B
+    JTAsMP/zfDk/hHJRA2rsEHeLY2egkyfrd4xTtoxdGNVNot67phZgb4AeI0yareFw
+    A7DlFKRKt5fAplgluGpRYHofTaNAuPdneC3ZXvJhlC3Wo96YCB46MNVDSXAmpait
+    gHcYQI7cFm+aLopgXaIyb8E5J6wmG/CSWjV/IcYh7cTMq93kCk07ftM1TYuMs9QS
+    zEBMWVmD76nW0GWQqYixt0uW9nf8uzCVzRTU0fP0OCXvpmnjrSk9/ODnxt8E5mNW
+    eDSDnnYPrlLfy6An9wC87eE3FRVoPHbmkMqnNkIcvQKBgQDrvd0uB/VfJ5YQzcTP
+    Y01QZRXT15981505G9aRpydsTID2UU1CkuD995IHqTC/MIUsclAWkq7+1efo1Hlc
+    i8fb/sJ86pktyThN7CCBhCMd12zxaKm2IJQ7GjWdsmgU2dzu4JGzFjAZwCnX+TY7
+    gIRzv7MwmzxjetKf+pTErb7SswKBgQD/27xSekUHJcnj4/VlsT+7LGu7LUoT+MRf
+    K+QSlzxnLylSyIaCXRLSzScqjnKhRYBuLywjWI/nJiQZePJjGZx4gTk/VET79U0W
+    G7zfHGxrBav6FIWwBTQGrlKi7tLt4Ohg2OWcZF7SB8tN5GFZKgj83fgB7KZP7Slw
+    0GrqmI/phQKBgETx92ECBNo6eqIZfAjnUvJDThnxwvxBFwNfx+Y7S8VZrpHbf0wM
+    Ju8/256P9ejEqP4xxIiFh9aR+sxWb9QIMYB+xqS/++KvKd9oQq1+VsLggUUtRg01
+    BAUxCiM/zT7j5MCcPyBwScsOL26xvRGz6YjstNxvWj8B6d3N7HqFEf0PAoGBAJ69
+    4VC2xZ8Spfj7VSSb3TOu8sQ17DEJ9iQqIh4asQI/836GJVY6ktQxLqyrpplCetVh
+    9RuU9etu8ZTQQmqT2E23tyIAkbBVWFdwLDWs9+NKqJHHK86y272NaH3oePvXv7Ve
+    vM7UQzRCW7PfDzr35o2k1huzjNgoB78TwFH/B8LVAoGBAN7qpcdBylgOPr13598U
+    bqLH+8jssL8TA/oy+UUS4x9urh929osx/Uus9SOOVm2DfAcmFYDIlgbE1fRsCPZx
+    fJ0l1tHSPqcQnJXIwyNqyE1r/zxIoJV54u/dROy0m1GgXarnU15BU2Y4q4DM160A
+    Qvr2bc7lJHexIqEuo5xbtQw8
+    -----END PRIVATE KEY-----
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+spec:
+  tls:
+    - hosts:
+        - krutovapp.com
+      secretName: app-secret
+  rules:
+    - host: krutovapp.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app-service
+                port:
+                  number: 3000
