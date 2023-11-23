@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: react-env
+data:
+  REACT_APP_USERNAME: "krutov777"
+  REACT_APP_COMPANY_NAME: "FICT ITMO"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: react
+  template:
+    metadata:
+      labels:
+        app: react
+    spec:
+      containers:
+        - image: ifilyaninitmo/itdt-contained-frontend:master
+          name: react                           
+          ports:
+          - name: react-port
+            containerPort: 3000
+          env:
+            - name: REACT_APP_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: react-env
+                  key: REACT_APP_USERNAME
+            - name: REACT_APP_COMPANY_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: react-env
+                  key: REACT_APP_COMPANY_NAME
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: react
+  ports:
+    - name: service-port
+      port: 777
+      targetPort: react-port
+      protocol: TCP
